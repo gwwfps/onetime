@@ -6,10 +6,13 @@ import (
     "encoding/binary"
     "errors"
     "math"
+    "time"
 )
 
 type OneTimePassword struct {
-    Digit int
+    Digit    int
+    TimeStep time.Duration
+    BaseTime time.Time
 }
 
 func (otp *OneTimePassword) HOTP(secret []byte, count uint64) uint {
@@ -30,7 +33,7 @@ func (otp *OneTimePassword) truncate(hs []byte) uint {
     return snum % uint(math.Pow(10, float64(otp.Digit)))
 }
 
-func New(digit int) (otp OneTimePassword, err error) {
+func Simple(digit int) (otp OneTimePassword, err error) {
     if digit < 6 {
         err = errors.New("A minimum of 6 digits is required for a valid HTOP code.")
         return
@@ -38,8 +41,18 @@ func New(digit int) (otp OneTimePassword, err error) {
         err = errors.New("An HTOP code cannot be longer than 9 digits.")
         return
     }
-    otp = OneTimePassword{digit}
+    step, _ := time.ParseDuration("30s")
+    otp = OneTimePassword{digit, step, time.Unix(0, 0)}
     return
+}
+
+func (otp *OneTimePassword) TOTP(secret []byte) uint {
+    return otp.HOTP(secret, otp.steps(time.Now()))
+}
+
+func (otp *OneTimePassword) steps(now time.Time) uint64 {
+    elapsed := now.Sub(otp.BaseTime)
+    return uint64(math.Floor(elapsed.Seconds() / otp.TimeStep.Seconds()))
 }
 
 func dt(hs []byte) []byte {
