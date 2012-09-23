@@ -5,6 +5,7 @@ import (
     "crypto/sha1"
     "encoding/binary"
     "errors"
+    "hash"
     "math"
     "time"
 )
@@ -13,15 +14,16 @@ type OneTimePassword struct {
     Digit    int
     TimeStep time.Duration
     BaseTime time.Time
+    Hash     func() hash.Hash
 }
 
 func (otp *OneTimePassword) HOTP(secret []byte, count uint64) uint {
-    hs := hmacSha1(secret, count)
+    hs := otp.hmacSum(secret, count)
     return otp.truncate(hs)
 }
 
-func hmacSha1(secret []byte, count uint64) []byte {
-    mac := hmac.New(sha1.New, secret)
+func (otp *OneTimePassword) hmacSum(secret []byte, count uint64) []byte {
+    mac := hmac.New(otp.Hash, secret)
     binary.Write(mac, binary.BigEndian, count)
     return mac.Sum(nil)
 }
@@ -42,7 +44,7 @@ func Simple(digit int) (otp OneTimePassword, err error) {
         return
     }
     step, _ := time.ParseDuration("30s")
-    otp = OneTimePassword{digit, step, time.Unix(0, 0)}
+    otp = OneTimePassword{digit, step, time.Unix(0, 0), sha1.New}
     return
 }
 
@@ -56,7 +58,7 @@ func (otp *OneTimePassword) steps(now time.Time) uint64 {
 }
 
 func dt(hs []byte) []byte {
-    offset := int(hs[19] & 0xf)
+    offset := int(hs[len(hs)-1] & 0xf)
     p := hs[offset : offset+4]
     p[0] &= 0x7f
     return p
