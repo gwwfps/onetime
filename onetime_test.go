@@ -35,6 +35,8 @@ func TestHOTP(t *testing.T) {
     }
 }
 
+// TestTOTP validates the TOTP implementation against test values provided in 
+// Appendix B of RFC-6238.
 func TestTOTP(t *testing.T) {
     expected := []uint{
         94287082,

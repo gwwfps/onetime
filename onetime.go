@@ -1,3 +1,8 @@
+/*
+   Package onetime provides a library for one-time password generation,
+   implementing the HOTP and TOTP algorithms as specified by IETF RFC-4226
+   and RFC-6238.
+*/
 package onetime
 
 import (
@@ -10,13 +15,15 @@ import (
     "time"
 )
 
+// OneTimePassword stores the configuration values relevant to HOTP/TOTP calculations.
 type OneTimePassword struct {
-    Digit    int
-    TimeStep time.Duration
-    BaseTime time.Time
-    Hash     func() hash.Hash
+    Digit    int              // Length of code generated
+    TimeStep time.Duration    // Length of each time step for TOTP
+    BaseTime time.Time        // The start time for TOTP step calculation
+    Hash     func() hash.Hash // Hash algorithm used with HMAC
 }
 
+// HOTP returns a HOTP code with the given secret and counter.
 func (otp *OneTimePassword) HOTP(secret []byte, count uint64) uint {
     hs := otp.hmacSum(secret, count)
     return otp.truncate(hs)
@@ -35,6 +42,9 @@ func (otp *OneTimePassword) truncate(hs []byte) uint {
     return snum % uint(math.Pow(10, float64(otp.Digit)))
 }
 
+// Simple returns a new OneTimePassword with the specified HTOP code length,
+// SHA-1 as the HMAC hash algorithm, the Unix epoch as the base time, and
+// 30 seconds as the step length.
 func Simple(digit int) (otp OneTimePassword, err error) {
     if digit < 6 {
         err = errors.New("A minimum of 6 digits is required for a valid HTOP code.")
@@ -48,6 +58,7 @@ func Simple(digit int) (otp OneTimePassword, err error) {
     return
 }
 
+// TOTP returns a TOTP code calculated with the current time and the given secret.
 func (otp *OneTimePassword) TOTP(secret []byte) uint {
     return otp.HOTP(secret, otp.steps(time.Now()))
 }
