@@ -53,8 +53,8 @@ func (otp *OneTimePassword) TOTP(secret []byte) uint {
 }
 
 func (otp *OneTimePassword) steps(now time.Time) uint64 {
-    elapsed := now.Sub(otp.BaseTime)
-    return uint64(math.Floor(elapsed.Seconds() / otp.TimeStep.Seconds()))
+    elapsed := now.Unix() - otp.BaseTime.Unix()
+    return uint64(math.Floor(float64(elapsed) / otp.TimeStep.Seconds()))
 }
 
 func dt(hs []byte) []byte {
