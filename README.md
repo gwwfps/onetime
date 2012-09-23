@@ -27,7 +27,7 @@ var otp = onetime.Simple(8)
 var code = otp.TOTP(secret)
 ```
 
-9-digit 5-second-step TOTP starting on midnight 2000-01-01, using SHA-256:
+9-digit 5-second-step TOTP starting on midnight 2000-01-01 UTC, using SHA-256:
 ```go
 import (
     "crypto/sha256"
@@ -37,7 +37,7 @@ import (
 
 var secret = []byte("SOME_SECRET")
 var ts, _ = time.ParseDuration("5s")
-var t = time.Date(2000, time.January, 1, 1, 0, 0, 0, time.UTC)
+var t = time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
 var otp = onetime.OneTimePassword{Digit: 9, TimeStep: ts, BaseTime: t, Hash: sha256.New} 
 var code = otp.TOTP(secret)
 ```
