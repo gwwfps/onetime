@@ -36,7 +36,7 @@ import (
 )
 
 var secret = []byte("SOME_SECRET")
-var ts, _ = time.ParseDuration("5s")
+const ts = 5 * time.Second
 var t = time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
 var otp = onetime.OneTimePassword{Digit: 9, TimeStep: ts, BaseTime: t, Hash: sha256.New} 
 var code = otp.TOTP(secret)
