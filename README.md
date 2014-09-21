@@ -14,7 +14,7 @@ import "onetime"
 
 var secret = []byte("SOME_SECRET")
 var counter = 123456
-var otp = onetime.Simple(6) 
+var otp, _ = onetime.Simple(6)
 var code = otp.HOTP(secret, counter)
 ```
 
@@ -23,7 +23,7 @@ Google authenticator style 8-digit TOTP code:
 import "onetime"
 
 var secret = []byte("SOME_SECRET")
-var otp = onetime.Simple(8) 
+var otp, _ = onetime.Simple(8)
 var code = otp.TOTP(secret)
 ```
 
@@ -36,15 +36,15 @@ import (
 )
 
 var secret = []byte("SOME_SECRET")
-var ts, _ = time.ParseDuration("5s")
+const ts = 5 * time.Second
 var t = time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
-var otp = onetime.OneTimePassword{Digit: 9, TimeStep: ts, BaseTime: t, Hash: sha256.New} 
+var otp = onetime.OneTimePassword{Digit: 9, TimeStep: ts, BaseTime: t, Hash: sha256.New}
 var code = otp.TOTP(secret)
 ```
 
 Documentation
 -------------
-Package doc can be found [at pkgdoc.org](http://go.pkgdoc.org/github.com/gwwfps/onetime).
+Package doc can be found [at godoc.org](http://godoc.org/github.com/gwwfps/onetime).
 
 License
 -------
