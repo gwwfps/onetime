@@ -1,8 +1,6 @@
-/*
-   Package onetime provides a library for one-time password generation,
-   implementing the HOTP and TOTP algorithms as specified by IETF RFC-4226
-   and RFC-6238.
-*/
+// Package onetime provides a library for one-time password generation,
+// implementing the HOTP and TOTP algorithms as specified by IETF RFC-4226
+// and RFC-6238.
 package onetime
 
 import (
@@ -47,10 +45,10 @@ func (otp *OneTimePassword) truncate(hs []byte) uint {
 // 30 seconds as the step length.
 func Simple(digit int) (otp OneTimePassword, err error) {
     if digit < 6 {
-        err = errors.New("A minimum of 6 digits is required for a valid HTOP code.")
+        err = errors.New("minimum of 6 digits is required for a valid HTOP code")
         return
     } else if digit > 9 {
-        err = errors.New("An HTOP code cannot be longer than 9 digits.")
+        err = errors.New("HTOP code cannot be longer than 9 digits")
         return
     }
     const step = 30 * time.Second
