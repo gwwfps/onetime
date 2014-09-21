@@ -44,7 +44,7 @@ var code = otp.TOTP(secret)
 
 Documentation
 -------------
-Package doc can be found [at pkgdoc.org](http://go.pkgdoc.org/github.com/gwwfps/onetime).
+Package doc can be found [at godoc.org](http://godoc.org/github.com/gwwfps/onetime).
 
 License
 -------
