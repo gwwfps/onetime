@@ -53,7 +53,7 @@ func Simple(digit int) (otp OneTimePassword, err error) {
         err = errors.New("An HTOP code cannot be longer than 9 digits.")
         return
     }
-    step, _ := time.ParseDuration("30s")
+    const step = 30 * time.Second
     otp = OneTimePassword{digit, step, time.Unix(0, 0), sha1.New}
     return
 }
@@ -65,7 +65,7 @@ func (otp *OneTimePassword) TOTP(secret []byte) uint {
 
 func (otp *OneTimePassword) steps(now time.Time) uint64 {
     elapsed := now.Unix() - otp.BaseTime.Unix()
-    return uint64(math.Floor(float64(elapsed) / otp.TimeStep.Seconds()))
+    return uint64(float64(elapsed) / otp.TimeStep.Seconds())
 }
 
 func dt(hs []byte) []byte {

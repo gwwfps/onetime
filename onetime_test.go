@@ -69,7 +69,7 @@ func TestTOTP(t *testing.T) {
     }
 
     digit := 8
-    step, _ := time.ParseDuration("30s")
+    const step = 30 * time.Second
     otps := []OneTimePassword{
         OneTimePassword{digit, step, time.Unix(0, 0), sha1.New},
         OneTimePassword{digit, step, time.Unix(0, 0), sha256.New},
@@ -88,8 +88,20 @@ func TestTOTP(t *testing.T) {
         secret := secrets[i%3]
         now := times[i/3]
         if v := otp.HOTP(secret, otp.steps(now)); v != exp {
-            t.Errorf("%s", uint64(now.Unix()-otp.BaseTime.Unix()))
+            t.Error("time:", uint64(now.Unix()-otp.BaseTime.Unix()))
             t.Errorf("TOTP(secret) = %v, want %v (time: %v, hash: %v)", v, exp, now, otp.Hash)
         }
+    }
+}
+
+func BenchmarkHOTPsha256(b *testing.B) {
+    epoch := time.Unix(0, 0)
+    otp := OneTimePassword{8, 30 * time.Second, epoch, sha256.New}
+    keyPart := "1234567890"
+    secret := []byte(strings.Repeat(keyPart, 4))
+    now := time.Unix(20000000000, 0)
+    b.ResetTimer()
+    for i := 0;i<b.N;i++ {
+        _ = otp.HOTP(secret, otp.steps(now))
     }
 }
